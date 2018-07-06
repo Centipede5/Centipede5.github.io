@@ -1,0 +1,237 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<style>
+table, th, td {
+   border: 1px solid black;
+}
+</style>
+<title>Map Editor</title>
+<script>
+var minecolor = 0;
+window.onload = function(){
+alert("Hey dude, welcome to the map editor \n\nAfter you click ok you will be prompted for your maps width and height \n \nREMEMBER, units are quite large, so, for eg. 50 by 10 is a reasonable size for a demo, and 2 units is about the size of a small platform\n\nalso,if you are making a large map, the page will take a LONG time to load, and may say that the page is unresponsive, just wait a bit (or a long time) and it will load eventually");
+var sizex = prompt("please enter your map width");
+var sizey = prompt("please enter your map height");
+var map = [];
+for(var i = 0; i<sizey; i++){
+	var stage = [];
+	for(var j = 0; j<sizex; j++){
+		stage.push(0);
+	}
+	map.push(stage);
+}
+const copyToClipboard = str => {
+  const el = document.createElement('textarea');  // Create a <textarea> element
+  el.value = str;                                 // Set its value to the string that you want copied
+  el.setAttribute('readonly', '');                // Make it readonly to be tamper-proof
+  el.style.position = 'absolute';                 
+  el.style.left = '-9999px';                      // Move outside the screen to make it invisible
+  document.body.appendChild(el);                  // Append the <textarea> element to the HTML document
+  const selected =            
+    document.getSelection().rangeCount > 0        // Check if there is any content selected previously
+      ? document.getSelection().getRangeAt(0)     // Store selection if found
+      : false;                                    // Mark as false to know no selection existed before
+  el.select();                                    // Select the <textarea> content
+  document.execCommand('copy');                   // Copy - only works as a result of a user action (e.g. click events)
+  document.body.removeChild(el);                  // Remove the <textarea> element
+  if (selected) {                                 // If a selection existed before copying
+    document.getSelection().removeAllRanges();    // Unselect everything on the HTML document
+    document.getSelection().addRange(selected);   // Restore the original selection
+  }
+};
+/*
+var map=[[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+		 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]];
+		 */
+//forest0
+//[[0,0,0,0,0,0,0,0,0,0],[0,0,2,0,0,2,0,0,0,0],[0,0,0,0,0,0,0,0,1,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,2,0,0,0,2,0,0],[0,0,0,0,0,0,0,0,0,0],[2,0,0,0,0,0,0,0,0,0],[0,0,0,0,2,0,0,0,0,0],[0,0,2,0,0,0,0,0,2,0],[0,0,0,0,0,1,0,0,0,0]]
+//forest1
+//[[0,0,0,2,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,1,0,0,0,0,0,0,2,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,2,0,2,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,2,0,0,0,0,0,0,1,0],[0,0,0,0,0,6,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,2,0,0,0,0,2,0]]
+//forest3
+//[[0,0,0,0,0,0,0,0,0,0],[0,2,0,0,0,0,6,0,0,0],[0,0,0,0,2,0,0,2,0,0],[0,0,0,0,0,0,0,0,0,0],[0,6,0,0,0,1,0,0,0,0],[0,0,2,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,2,0],[0,0,0,0,6,0,0,0,0,0],[0,0,2,0,0,0,2,0,0,0],[0,0,0,0,0,0,0,0,0,0]]
+//forest4
+//[[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,2,0,0,0],[2,0,2,0,0,0,0,0,2,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,6,0,0,0,0,0,0],[0,0,0,0,0,2,0,0,2,0],[0,0,2,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,2,0,0],[0,2,0,0,0,0,0,0,0,0]]
+
+		    //nothing,wall ,  spikeup,  spikedown  , car   , bike   , bush ,crate , tank, plane
+var colors = ["white","lime","gray","lightgray","pink","red","purple","yellow","black","blue","aqua","green"];
+//"black","yellow","lime","aqua"
+
+eport = function(){
+	var eportstring = JSON.stringify(map);
+	copyToClipboard(eportstring);
+	alert("save code copied to clipboard. now send it to me on discord :)");
+}
+xport = function(){
+	var xportstring = prompt("please enter your save code");
+	xportstring = JSON.parse(xportstring);
+	map = xportstring;
+	for(var i =0; i<map.length; i++){
+		for(j = 0; j<map[i].length; j++){
+			document.getElementById(i+"-"+j).style.background = colors[map[i][j]];
+			document.getElementById(i+"-"+j).style.color = colors[map[i][j]];
+		}
+		//write("<br>");
+	}
+}
+var paint = false;
+	pcolor = function(x,y){
+	if(true){
+		color(x,y);
+	}
+}
+border = function(){
+	for(var i = 0; i<map.length; i++){
+		map[0][i] = 3;
+		document.getElementById(0+"-"+i).style.background = colors[map[0][i]];
+		document.getElementById(0+"-"+i).style.color = colors[map[0][i]];
+		map[i][0] = 3;
+		document.getElementById(i+"-"+0).style.background = colors[map[i][0]];
+		document.getElementById(i+"-"+0).style.color = colors[map[i][0]];
+		map[map.length-1][i] = 3;
+		document.getElementById(map.length-1+"-"+i).style.background = colors[map[map.length-1][i]];
+		document.getElementById(map.length-1+"-"+i).style.color = colors[map[map.length-1][i]];
+		colorme(3,i,(map.length-1));
+	}
+}
+colorme = function(color,x,y){
+	map[x][y] = color;
+	document.getElementById(x+"-"+y).style.background = colors[map[x][y]];
+	document.getElementById(x+"-"+y).style.color = colors[map[x][y]];
+}
+color = function(x,y){
+	console.log("HI "+x+" , "+y);
+	map[x][y] = minecolor;
+	console.log(map[x][y]);
+	document.getElementById(x+"-"+y).style.background = colors[minecolor];
+	document.getElementById(x+"-"+y).style.color = colors[minecolor];
+};
+write = function(text){
+	document.getElementById("hi").innerHTML = document.getElementById("hi").innerHTML+text;
+}
+for(var i =0; i<map.length; i++){
+	for(j = 0; j<map[i].length; j++){
+		write("<b id = '" +i+"-"+j+"' onclick ='color("+i+","+j+")' style = 'margin:none; color:white; border:1px solid black'>▀ </b>");
+	}
+	write("<br>");
+}
+}
+var mouse = {x:0,y:0,moved:false};
+/*
+function getSquareclicked(){
+	//return ""+
+}*/
+window.addEventListener( "mousemove", function( event ) {
+            mouse.x = event.clientX;
+            mouse.y = event.clientY;
+    		mouse.moved = true;
+            if( mouse.renderer !== undefined ) {
+                mouse.x = Math.max( Math.min( ( mouse.x - mouse.renderer.c.width / 2 - mouse.renderer.left ) * mouse.renderer.ratio, 1920 / 2 ), -1920 / 2 );
+                mouse.y = Math.max( Math.min( ( mouse.y - mouse.renderer.c.height / 2 - mouse.renderer.top ) * mouse.renderer.ratio, 1080 / 2 ), -1080 / 2 );
+            }
+    } );
+document.onkeydown = function(event){
+		if(event.keyCode === 48){
+			minecolor =0;
+		}else if(event.keyCode === 49){ 
+			minecolor =1;
+		}else if(event.keyCode === 50){ 
+			minecolor =2;
+		}else if(event.keyCode === 51){ 
+			minecolor =3;
+		}else if(event.keyCode === 52){ 
+			minecolor =4;
+		}else if(event.keyCode === 53){ 
+			minecolor =5;
+		}else if(event.keyCode === 54){ 
+			minecolor =6;
+		}else if(event.keyCode === 55){ 
+			minecolor =7;
+		}else if(event.keyCode === 56){ 
+			minecolor =8;
+		}else if(event.keyCode === 57){ 
+			minecolor =9;
+		}else if(event.keyCode === 65){ 
+			minecolor =10;
+		}else if(event.keyCode === 66){ 
+			minecolor =11;
+		}
+	}
+</script>
+</head>
+<body>
+<h1>Centipede5 Map Editor v.0.4.3</h1>
+<p>TO USE:<br>
+   - If you want to use an existing map press import and copy the code into the popup<br>
+   - Press the keystroke for the block you want to place (keystrokes key below)<br>
+   - Click on the square you want to change, and use the keystrokes to change blocks<br>
+   - Once your done, click export and send it to me :)<br>
+   <br>
+   KEYSTROKES:<br>
+   <table>
+   	<tr>
+   		<td><b>KEYSTROKE&nbsp;&nbsp;</b></td><td><b>ITEM </b></td><td><b>COLOR </b></td><td><b>NOTES </b></td>
+   	</tr>
+   	<tr>
+   		<td>1</td><td>ground</td><td>light green</td><td>basic ground</td>
+   	</tr>
+   	<tr>
+   		<td>2</td><td>spike (facing up)</td><td>gray</td><td>note that spikes are half the size of blocks, and will be positioned correctly</td>
+   	</tr>
+   	<tr>
+   		<td>3</td><td>spike (facing down)</td><td>light gray</td><td>note that spikes are half the size of blocks, and will be positioned correctly</td>
+   	</tr>
+   	<tr>
+   		<td>4</td><td>spawn</td><td>pink</td><td>this is where players will spawn, make only 1</td>
+   	</tr>
+   	<tr>
+   		<td>5</td><td>Monster(1)</td><td>red</td><td> </td>
+   	</tr>
+   	<tr>
+   		<td>6</td><td>Monster(2)</td><td>purple</td><td> </td>
+   	</tr>
+   	<tr>
+   		<td>7</td><td>Monster(3)</td><td>yellow</td><td> </td>
+   	</tr>
+   	<tr>
+   		<td>8</td><td>Bat (going normal)</td><td>black</td><td> </td>
+   	</tr>
+   	<tr>
+   		<td>9</td><td>Bat (going reverse)</td><td>blue</td><td> </td>
+   	</tr>
+   	<tr>
+   		<td>a</td><td>Moving spike</td><td>aqua</td><td>spike that moves up and down every 6 seconds</td>
+   	</tr>
+   	<tr>
+   		<td>b</td><td>Moving spike (reverse)</td><td>dark green</td><td>spike that moves up and down every 6 seconds reversed</td>
+   	</tr>
+   	<tr>
+   		<td>0</td><td>erase</td><td>white</td><td>use this to delete a block</td>
+   	</tr>
+   	<!--"red","purple","yellow","black","lime","aqua"-->
+   </table>
+   <button onclick = "eport()">export</button>
+   <button onclick = "xport()">import</button>
+   <!--<button onclick ="border()">border</button>-->
+<p id = "hi" style = "width:100%;height:100%;user-select:none;overflow:scroll;white-space: nowrap;"></p>
+<p id = "eport"></p>
+</body>
+</html>
